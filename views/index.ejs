@@ -1,5 +1,79 @@
 <% include header.ejs %>
   <div class="container">
+        <!-- Dialog Modal -->
+        <div class="modal fade" id="signinModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Sign in</h4></div>
+              <div class="modal-body">
+                <form role="form">
+                  <div class="form-group">
+                    <label for="name">Email</label>
+                    <input type="text" class="form-control" id="email" placeholder="Email@mail.com"></div>
+                  <div class="form-group">
+                    <label for="name">Password</label>
+                    <input type="password" class="form-control" id="pass"></div>
+                  <button type="submit" class="btn btn-primary btn-lg btn-block">LOGIN</button></form>
+                <hr class="divider" width="90%"></div>
+              <div class="modal-footer">
+                <p class="text-center">No account? Sign up for free!</p></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal fade" id="signupModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                <h4 class="modal-title" id="myModalLabel">Sign up</h4></div>
+              <div class="modal-body">
+                <form role="form">
+                  <div class="form-group">
+                    <label for="name">Email</label>
+                    <input type="text" class="form-control" id="email_reg" placeholder="Email@mail.com"></div>
+                  <div class="form-group">
+                    <label for="name">User Name</label>
+                    <input type="text" class="form-control" id="username_reg" placeholder="User Name"></div>
+                  <div class="form-group">
+                    <label for="name">Password</label>
+                    <input type="password" class="form-control" id="pass_reg"></div>
+                  <div class="form-group">
+                    <label for="name">Password again</label>
+                    <input type="password" class="form-control" id="pass1_reg"></div>
+                  <button type="submit" class="btn btn-primary btn-lg btn-block" id="register">CREATE ACCOUNT</button></form>
+              </div>
+              <hr class="divider" width="90%">
+              <div class="modal-footer">
+                <p class="text-center">Already have an account? Log in here</p></div>
+            </div>
+          </div>
+        </div>		
+		<script type="text/javascript">
+		$(function(){
+		  $("#register").click(function(){
+		    var email = $("#email_reg").val();
+			var username = $("#username_reg").val();
+			var pass = $("#pass_reg").val();
+			var pass1 = $("#pass1_reg").val();
+		    var data = {"email":email, "uname":username, "pass":pass, "pass1":pass1};
+			$.ajax({
+			  url:'/reg',
+			  type:'post',
+			  data:data,
+			  success: function(data, status) {
+			    if (status == 'success') {
+				  console.log("Login Success");
+				}
+			  },
+			  error: function(data, err) {
+				  console.log("Login Error");
+			  }
+			});
+	      });
+		});
+		</script>
     <div class="row clearfix">
       <div class="col-md-12 column">
         <div class="navbar-wrapper">
@@ -39,56 +113,6 @@
           <p>
             <br></p>
         </blockquote>
-        <!-- Dialog Modal -->
-        <div class="modal fade" id="signinModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel">Sign in</h4></div>
-              <div class="modal-body">
-                <form role="form">
-                  <div class="form-group">
-                    <label for="name">Email</label>
-                    <input type="text" class="form-control" id="email" placeholder="Email@mail.com"></div>
-                  <div class="form-group">
-                    <label for="name">Password</label>
-                    <input type="password" class="form-control" id="pass"></div>
-                  <button type="submit" class="btn btn-primary btn-lg btn-block">LOGIN</button></form>
-                <hr class="divider" width="90%"></div>
-              <div class="modal-footer">
-                <p class="text-center">No account? Sign up for free!</p></div>
-            </div>
-            <!-- /.modal-content --></div>
-          <!-- /.modal --></div>
-        <div class="modal fade" id="signupModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel">Sign up</h4></div>
-              <div class="modal-body">
-                <form role="form">
-                  <div class="form-group">
-                    <label for="name">Email</label>
-                    <input type="text" class="form-control" id="email" placeholder="Email@mail.com"></div>
-                  <div class="form-group">
-                    <label for="name">User Name</label>
-                    <input type="text" class="form-control" id="name" placeholder="User Name"></div>
-                  <div class="form-group">
-                    <label for="name">Password</label>
-                    <input type="password" class="form-control" id="pass"></div>
-                  <div class="form-group">
-                    <label for="name">Password again</label>
-                    <input type="password" class="form-control" id="pass1"></div>
-                  <button type="submit" class="btn btn-primary btn-lg btn-block">CREATE ACCOUNT</button></form>
-              </div>
-              <hr class="divider" width="90%">
-              <div class="modal-footer">
-                <p class="text-center">Already have an account? Log in here</p></div>
-            </div>
-            <!-- /.modal-content --></div>
-          <!-- /.modal --></div>
         <div class="carousel slide" id="carousel-721346">
           <ol class="carousel-indicators">
             <li class="active" data-slide-to="0" data-target="#carousel-721346"></li>

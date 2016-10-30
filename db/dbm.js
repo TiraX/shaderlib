@@ -20,4 +20,5 @@ dbm.prototype.get = function(table, key, cb) {
 }
 
 var _dbm = new dbm();
+_dbm.connect('123456');
 module.exports = _dbm;

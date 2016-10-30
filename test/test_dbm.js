@@ -1,12 +1,12 @@
-
 console.log('attention !!');
 var dbm = require('../db/dbm');
-dbm.connect('123456');
+//dbm.connect('123456');	// init in dbm.js
 dbm.set('table1', 'key1', 'value1');
-dbm.get('table1', 'key1', function test_table1_cb(err, res) {
+dbm.get('table1', 'key1',
+function test_table1_cb(err, res) {
   if (err) {
     console.log(err);
-	return;
+    return;
   }
   console.log(' result : ' + res);
 });

@@ -14,7 +14,7 @@ User.prototype.save = function save(callback) {
     password: this.password,
   };
   
-  dbm.set('users', this.email, JSON.stringify(user));
+  dbm.set('users', this.email, JSON.stringify(user), callback);
 };
 
 User.get = function get(email, callback) {

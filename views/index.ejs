@@ -1,79 +1,96 @@
 <% include header.ejs %>
   <div class="container">
-        <!-- Dialog Modal -->
-        <div class="modal fade" id="signinModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel">Sign in</h4></div>
-              <div class="modal-body">
-                <form role="form">
-                  <div class="form-group">
-                    <label for="name">Email</label>
-                    <input type="text" class="form-control" id="email" placeholder="Email@mail.com"></div>
-                  <div class="form-group">
-                    <label for="name">Password</label>
-                    <input type="password" class="form-control" id="pass"></div>
-                  <button type="submit" class="btn btn-primary btn-lg btn-block">LOGIN</button></form>
-                <hr class="divider" width="90%"></div>
-              <div class="modal-footer">
-                <p class="text-center">No account? Sign up for free!</p></div>
-            </div>
-          </div>
+    <!-- Dialog Modal -->
+    <div class="modal fade" id="signinModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">Sign in</h4></div>
+          <div class="modal-body">
+            <form role="form">
+              <div class="form-group">
+                <label for="name">Email</label>
+                <input type="text" class="form-control" id="email" placeholder="Email@mail.com"></div>
+              <div class="form-group">
+                <label for="name">Password</label>
+                <input type="password" class="form-control" id="pass"></div>
+              <button type="submit" class="btn btn-primary btn-lg btn-block">LOGIN</button></form>
+            <hr class="divider" width="90%"></div>
+          <div class="modal-footer">
+            <p class="text-center">No account? Sign up for free!</p></div>
         </div>
-        <div class="modal fade" id="signupModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel">Sign up</h4></div>
-              <div class="modal-body">
-                <form role="form">
-                  <div class="form-group">
-                    <label for="name">Email</label>
-                    <input type="text" class="form-control" id="email_reg" placeholder="Email@mail.com"></div>
-                  <div class="form-group">
-                    <label for="name">User Name</label>
-                    <input type="text" class="form-control" id="username_reg" placeholder="User Name"></div>
-                  <div class="form-group">
-                    <label for="name">Password</label>
-                    <input type="password" class="form-control" id="pass_reg"></div>
-                  <div class="form-group">
-                    <label for="name">Password again</label>
-                    <input type="password" class="form-control" id="pass1_reg"></div>
-                  <button type="submit" class="btn btn-primary btn-lg btn-block" id="register">CREATE ACCOUNT</button></form>
-              </div>
-              <hr class="divider" width="90%">
-              <div class="modal-footer">
-                <p class="text-center">Already have an account? Log in here</p></div>
-            </div>
+      </div>
+    </div>
+    <div class="modal fade" id="signupModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+            <h4 class="modal-title" id="myModalLabel">Sign up</h4></div>
+          <div class="modal-body">
+            <div id="signupAlert" class="alert alert-warning">
+              <a href="#" class="close" data-dismiss="alert" aria-hidden="true">&times;</a>test</div>
+            <form role="form" onsubmit="return false">
+              <div class="form-group">
+                <label for="name">Email</label>
+                <input type="text" class="form-control" id="email_reg" placeholder="Email@mail.com"></div>
+              <div class="form-group">
+                <label for="name">User Name</label>
+                <input type="text" class="form-control" id="username_reg" placeholder="User Name"></div>
+              <div class="form-group">
+                <label for="name">Password</label>
+                <input type="password" class="form-control" id="pass_reg"></div>
+              <div class="form-group">
+                <label for="name">Password again</label>
+                <input type="password" class="form-control" id="pass1_reg"></div>
+              <button type="submit" class="btn btn-primary btn-lg btn-block" id="register" data-loading-text="CREATING...">CREATE ACCOUNT</button></form>
           </div>
-        </div>		
-		<script type="text/javascript">
-		$(function(){
-		  $("#register").click(function(){
-		    var email = $("#email_reg").val();
-			var username = $("#username_reg").val();
-			var pass = $("#pass_reg").val();
-			var pass1 = $("#pass1_reg").val();
-		    var data = {"email":email, "uname":username, "pass":pass, "pass1":pass1};
-			$.ajax({
-			  url:'/reg',
-			  type:'post',
-			  data:data,
-			  success: function(data, status) {
-			    if (status == 'success') {
-				  console.log("Login Success");
-				}
-			  },
-			  error: function(data, err) {
-				  console.log("Login Error");
-			  }
-			});
-	      });
-		});
-		</script>
+          <hr class="divider" width="90%">
+          <div class="modal-footer">
+            <p class="text-center">Already have an account? Log in here</p></div>
+        </div>
+      </div>
+    </div>
+    <script type="text/javascript">$(function() {
+        $("#signupAlert").hide();
+        $("#register").click(function() {
+          $(this).button('loading').delay(1000).queue(function() {});
+          var email = $("#email_reg").val();
+          var username = $("#username_reg").val();
+          var pass = $("#pass_reg").val();
+          var pass1 = $("#pass1_reg").val();
+          var data = {
+            "email": email,
+            "uname": username,
+            "pass": pass,
+            "pass1": pass1
+          };
+          $.ajax({
+            url: '/reg',
+            type: 'post',
+            data: data,
+            success: function(data, status) {
+              if (status == 'success') {
+                if (data.error == null) {
+                  // sign up successful
+                  $("#signupModal").modal('hide');
+                  $("#register").button('reset');
+                  location.reload();
+                } else {
+                  // sign up failed, show failed reason
+                  $("#signupAlert").show();
+                  $("#signupAlert").text(data.error);
+                  $("#register").button('reset');
+                }
+              }
+            },
+            error: function(data, err, _err_thrown) {
+              console.log(err);
+            }
+          });
+        });
+      });</script>
     <div class="row clearfix">
       <div class="col-md-12 column">
         <div class="navbar-wrapper">
@@ -100,10 +117,27 @@
                   <button type="submit" class="btn btn-default">Search</button></form>
                 <div class="navbar-right">
                   <ul class="nav navbar-nav">
-                    <li>
-                      <button type="button" class="btn btn-primary navbar-btn" data-toggle="modal" data-target="#signupModal">Sign up</button>
-                      <button type="button" class="btn btn-default navbar-btn" data-toggle="modal" data-target="#signinModal">Sign in</button></li>
-                  </ul>
+                    <% if (!user) { %>
+                      <li>
+                        <button type="button" class="btn btn-primary navbar-btn" data-toggle="modal" data-target="#signupModal">Sign up</button>
+                        <button type="button" class="btn btn-default navbar-btn" data-toggle="modal" data-target="#signinModal">Sign in</button></li>
+                      <% } else { %>
+                        <li class="dropdown">
+                          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                            <strong>
+                              <%= user.name %></strong>
+                            <strong class="caret"></strong>
+                          </a>
+                          <ul class="dropdown-menu">
+                            <li>
+                              <a href="#">Profile</a></li>
+                            <li>
+                              <a href="#">Settings</a></li>
+                            <li>
+                              <a href="#">Logout</a></li>
+                          </ul>
+                        </li>
+                        <% } %></ul>
                 </div>
               </div>
             </nav>

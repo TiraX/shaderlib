@@ -32,12 +32,6 @@ app.use(session({
 }));
 app.use(function(req, res, next){
   res.locals.user = req.session.user;
-  var obj = req.session.user;
-  if (obj != undefined) {
-    for (var o in obj) {
-	  console.log( o + ' is := ' + obj[o]);
-	}
-  }
   next();
 });
 

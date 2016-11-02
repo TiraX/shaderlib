@@ -8,20 +8,58 @@
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
             <h4 class="modal-title" id="myModalLabel">Sign in</h4></div>
           <div class="modal-body">
-            <form role="form">
+            <div id="signinAlert" class="alert alert-warning">
+              <a href="#" class="close" data-dismiss="alert" aria-hidden="true">&times;</a></div>
+            <form role="form" onsubmit="return false">
               <div class="form-group">
                 <label for="name">Email</label>
                 <input type="text" class="form-control" id="email" placeholder="Email@mail.com"></div>
               <div class="form-group">
                 <label for="name">Password</label>
                 <input type="password" class="form-control" id="pass"></div>
-              <button type="submit" class="btn btn-primary btn-lg btn-block">LOGIN</button></form>
+              <button type="submit" class="btn btn-primary btn-lg btn-block" id="login" data-loading-text="LOADING...">LOGIN</button></form>
             <hr class="divider" width="90%"></div>
           <div class="modal-footer">
             <p class="text-center">No account? Sign up for free!</p></div>
         </div>
       </div>
     </div>
+    <script type="text/javascript">
+	$(function() {
+        $("#signinAlert").hide();
+        $("#login").click(function() {
+          $(this).button('loading').delay(1000).queue(function() {});
+          var email = $("#email").val();
+          var pass = $("#pass").val();
+          var data = {
+            "email": email,
+            "pass": pass
+          };
+          $.ajax({
+            url: '/login',
+            type: 'post',
+            data: data,
+            success: function(data, status) {
+              if (status == 'success') {
+                if (data.error == null) {
+                  // sign in successful
+                  $("#signinModal").modal('hide');
+                  $("#login").button('reset');
+                  location.reload();
+                } else {
+                  // sign in failed, show failed reason
+                  $("#signinAlert").show();
+                  $("#signinAlert").text(data.error);
+                  $("#login").button('reset');
+                }
+              }
+            },
+            error: function(data, err, _err_thrown) {
+              console.log(err);
+            }
+          });
+        });
+      });</script>
     <div class="modal fade" id="signupModal" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
@@ -30,7 +68,7 @@
             <h4 class="modal-title" id="myModalLabel">Sign up</h4></div>
           <div class="modal-body">
             <div id="signupAlert" class="alert alert-warning">
-              <a href="#" class="close" data-dismiss="alert" aria-hidden="true">&times;</a>test</div>
+              <a href="#" class="close" data-dismiss="alert" aria-hidden="true">&times;</a></div>
             <form role="form" onsubmit="return false">
               <div class="form-group">
                 <label for="name">Email</label>
@@ -52,7 +90,8 @@
         </div>
       </div>
     </div>
-    <script type="text/javascript">$(function() {
+    <script type="text/javascript">
+	$(function() {
         $("#signupAlert").hide();
         $("#register").click(function() {
           $(this).button('loading').delay(1000).queue(function() {});
@@ -134,7 +173,7 @@
                             <li>
                               <a href="#">Settings</a></li>
                             <li>
-                              <a href="#">Logout</a></li>
+                              <a href="/logout">Logout</a></li>
                           </ul>
                         </li>
                         <% } %></ul>

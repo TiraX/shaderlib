@@ -54,12 +54,52 @@ function(req, res) {
 	    info.info = 'register success';
 	  }
       req.session.user = newUser;
-      //req.flash('success', '注册成功');
-      //res.redirect('/');
-	  // test
 	  res.send(info);
     });
   });
+});
+
+router.post('/login', function(req, res) {
+  var crypto = require('crypto');
+  var md5 = crypto.createHash('md5');
+  var password = md5.update(req.body.pass).digest('base64');
+  var User = require('../models/user');
+  var newUser = new User({
+    email: req.body.email,
+    name: null,
+    password: password
+  });
+  
+  //check user email and password
+  User.get(newUser.email,
+  function(err, user) {
+    var info = {
+      error: null,
+      info: null
+    };
+    if (err) {
+      info.error = err;
+	  console.log('error : ' + err);
+	  //req.flash('error', err);
+	  return res.send(info);
+    }
+	
+	if (user == null || user.password != password) {
+      // wrong password	
+	  info.error = 'Invalid email or password.';
+	  console.log('error : ' + info.err);
+	  return res.send(info);
+	}
+	info.info = 'login success.';
+	newUser.name = user.name;
+	req.session.user = newUser;
+	res.send(info);
+  });
+});
+
+router.get('/logout', function(req, res) {
+  req.session.user = null;
+  res.redirect('/');
 });
 
 module.exports = router;

@@ -72,7 +72,7 @@ router.post('/login', function(req, res) {
   
   //check user email and password
   User.get(newUser.email,
-  function(err, user) {
+  function(err, userStr) {
     var info = {
       error: null,
       info: null
@@ -83,7 +83,10 @@ router.post('/login', function(req, res) {
 	  //req.flash('error', err);
 	  return res.send(info);
     }
-	
+	var user = null;
+	if (userStr != null) {
+	  user = JSON.parse(userStr);
+	}
 	if (user == null || user.password != password) {
       // wrong password	
 	  info.error = 'Invalid email or password.';

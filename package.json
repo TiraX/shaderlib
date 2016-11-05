@@ -12,6 +12,7 @@
     "ejs": ">= 0.0.1",
     "express": "~4.13.4",
     "express-session": "^1.14.2",
+    "formidable": "^1.0.17",
     "morgan": "~1.7.0",
     "redis": "^2.6.2",
     "serve-favicon": "~2.3.0"

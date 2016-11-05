@@ -1,4 +1,7 @@
 var express = require('express');
+var formidable = require('formidable');
+var fs = require('fs');
+
 var router = express.Router();
 
 /* GET home page. */
@@ -11,12 +14,17 @@ function(req, res, next) {
 
 router.post('/reg',
 function(req, res) {
-  //检验用户两次输入的口令是否一致
-  //if (pass != pass1) {
-  //  req.flash('error', '两次输入的口令不一致');
-  //  return; // res.redirect('/reg');   
-  //}
-  //生成口令的散列值
+  var info = {
+	error: null,
+	info: null
+  };
+  // check password is same
+  if (req.body.pass != req.body.pass1) {
+    info.error = 'passwords are not same.';
+	res.send(info);
+    return; // res.redirect('/reg');   
+  }
+  // get encoded password
   var crypto = require('crypto');
   var md5 = crypto.createHash('md5');
   var password = md5.update(req.body.pass).digest('base64');
@@ -34,20 +42,13 @@ function(req, res) {
 	  err = 'Username already exists.';
 	}
     if (err) {
-	  var info = {
-	    error: err,
-		info: null
-	  };
+	  info.error = err;
 	  console.log('error : ' + err);
 	  //req.flash('error', err);
 	  return res.send(info);
     }
     //如果不存在则新增用户
     newUser.save(function(err) {
-	  var info = {
-	    error: null,
-		info: null
-	  };
 	  if (err) {
 	    info.error = err;
 	  } else {
@@ -105,4 +106,38 @@ router.get('/logout', function(req, res) {
   res.redirect('/');
 });
 
+router.get('/upload',
+function(req, res, next) {
+  res.render('upload', {
+    title: 'ShaderLib'
+  });
+});
+
+router.post('/upload',
+function(req, res, next) {
+  var form = new formidable.IncomingForm();
+  form.uploadDir = 'public/tmpfiles/';
+  form.keepExtensions = true;
+  form.maxFieldsSize = 100 * 1024 * 1024;
+  form.parse(req, function(err, fields, files) {
+    if (err) {
+	  console.log('formidable error = ' + err);
+	  return;
+	}
+	// find file id
+	var oldPath = files.file_data.path;
+	var _start = oldPath.lastIndexOf('upload_');
+	if (_start < 0) start = 0;
+	var _end = oldPath.lastIndexOf('.fbx');
+	if (_end < 0) _end = oldPath.length;
+	var fileid = oldPath.substring(_start + 7, _end);
+	
+	var newDir = 'public/files/' + fileid;
+	fs.mkdirSync(newDir);
+	var newPath = newDir + '/' + files.file_data.name;
+	fs.renameSync(oldPath, newPath);
+    var info = {};
+    res.send(info);
+  });
+});
 module.exports = router;

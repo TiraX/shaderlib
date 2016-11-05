@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+      <link href="css/bootstrap.min.css" rel="stylesheet">
+      <link href="css/style.css" rel="stylesheet">
+      <link href="css/fileinput.min.css" rel="stylesheet">
+  </head>
+  <body>
+  <script src="js/jquery.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+  <script src="js/fileinput.min.js"></script>
+  
+  <div class="container">
+    <% include login_dlg.ejs %>
+    <div class="row clearfix">
+      <div class="col-md-12 column">
+
+        <% include navbar.ejs %>	  
+	  
+        <blockquote>
+          <p>
+            <br></p>
+        </blockquote>
+		
+            <form enctype="multipart/form-data" id="uploadForm">
+                <div class="form-group">
+                    <input id="file_1" type="file" class="file" data-overwrite-initial="false" data-min-file-count="1">
+                </div>
+            </form>
+			
+	<script>
+    $("#file_1").fileinput({
+        uploadUrl: '/upload', // you must set a valid URL here else you will get an error
+		showUploadedThumbs: false,
+		uploadAsync: true,
+        allowedFileExtensions : ['fbx'],
+        overwriteInitial: false,
+        maxFileSize: 102400,
+        maxFilesNum: 1,
+        //allowedFileTypes: ['image', 'video', 'flash'],
+        slugCallback: function(filename) {
+            return filename.replace('(', '_').replace(']', '_');
+        }
+	});
+	$("#uploadForm").submit(function(event) {
+	  var formData = new FormData(this);
+	  event.preventDefault();
+	  
+	  $.ajax({
+	    url: '/upload',
+		type: 'post',
+		data: formData,
+		contentType: false,
+		processData: false,
+		success: function(data) {
+		  console.log(' upload ... ' + data);
+		},
+		error: function() {
+		  console.log(' upload error ... ' + data);
+		}
+	  });
+	});
+	</script>
+		
+		
+      </div>
+    </div>
+  </div>
+  <% include footer.ejs %>

@@ -132,10 +132,18 @@ function(req, res, next) {
 	if (_end < 0) _end = oldPath.length;
 	var fileid = oldPath.substring(_start + 7, _end);
 	
+	// create dir and rename file to 'fileid' directory
 	var newDir = 'public/files/' + fileid;
 	fs.mkdirSync(newDir);
 	var newPath = newDir + '/' + files.file_data.name;
 	fs.renameSync(oldPath, newPath);
+	
+	// save upload info to db
+	var user = req.session.user;
+	var asset = user.addUpload(fileid, files.file_data.name, function (err, result) {
+      
+	});
+	req.session.uploading = asset;
     var info = {};
     res.send(info);
   });

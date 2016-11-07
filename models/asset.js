@@ -7,6 +7,7 @@ var dbm = require('../db/dbm');
 Asset.prototype.save = function save(callback) {
   var asset = {
     id: this.id,
+	name: this.modelName
   };
   
   dbm.set('uploads', this.id, JSON.stringify(asset), callback);

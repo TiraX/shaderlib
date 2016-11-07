@@ -5,7 +5,7 @@ function User(user) {
   this.email = user.email;
   this.name = user.name;
   this.password = user.password;
-  this.upload_infos = [];
+  this.upload_infos = user.upload_infos ? user.upload_infos : [];
 };
 
 User.prototype.save = function save(callback) {
@@ -13,7 +13,7 @@ User.prototype.save = function save(callback) {
     email: this.email,
     name: this.name,
     password: this.password,
-	upload_infos: this.uploads
+	upload_infos: this.upload_infos
   };
   
   dbm.set('users', this.email, JSON.stringify(user), callback);
@@ -42,7 +42,7 @@ User.prototype.addUpload = function addUpload(uploadid, filename, callback) {
   var upload_info = {};
   upload_info.id = uploadid;
   this.upload_infos.push(upload_info);
-  dbm.save(callback);
+  this.save(callback);
   
   // add this new upload to upload table
   var newAsset = new Asset(uploadid);

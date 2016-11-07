@@ -138,7 +138,7 @@ function(req, res, next) {
 	fs.renameSync(oldPath, newPath);
 	
 	// save upload info to db
-	var user = req.session.user;
+	var user = new User(req.session.user);
 	if (user instanceof (User)) {
 	  console.log('instance of user.');
 	}

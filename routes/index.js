@@ -1,6 +1,7 @@
 var express = require('express');
 var formidable = require('formidable');
 var fs = require('fs');
+var User = require('../models/user');
 
 var router = express.Router();
 
@@ -28,7 +29,6 @@ function(req, res) {
   var crypto = require('crypto');
   var md5 = crypto.createHash('md5');
   var password = md5.update(req.body.pass).digest('base64');
-  var User = require('../models/user');
   var newUser = new User({
     email: req.body.email,
     name: req.body.uname,
@@ -64,7 +64,6 @@ router.post('/login', function(req, res) {
   var crypto = require('crypto');
   var md5 = crypto.createHash('md5');
   var password = md5.update(req.body.pass).digest('base64');
-  var User = require('../models/user');
   var newUser = new User({
     email: req.body.email,
     name: null,
@@ -140,6 +139,9 @@ function(req, res, next) {
 	
 	// save upload info to db
 	var user = req.session.user;
+	if (user instanceof (User)) {
+	  console.log('instance of user.');
+	}
 	var asset = user.addUpload(fileid, files.file_data.name, function (err, result) {
       
 	});

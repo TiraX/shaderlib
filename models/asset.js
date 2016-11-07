@@ -2,7 +2,6 @@ function Asset(id) {
   this.id = id;
   this.modelName = '';
 };
-module.exports = Asset;
 
 var dbm = require('../db/dbm');
 Asset.prototype.save = function save(callback) {
@@ -25,3 +24,5 @@ Asset.prototype.load = function load(callback) {
 	callback(err, this);
   });
 };
+
+module.exports = Asset;

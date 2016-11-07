@@ -7,10 +7,7 @@ function User(user) {
   this.password = user.password;
   this.upload_infos = [];
 };
-module.exports = User;
 
-
-var dbm = require('../db/dbm');
 User.prototype.save = function save(callback) {
   var user = {
     email: this.email,
@@ -53,3 +50,4 @@ User.prototype.addUpload = function addUpload(uploadid, filename, callback) {
   newAsset.save(callback);
   return newAsset;
 }
+module.exports = User;

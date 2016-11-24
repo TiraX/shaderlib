@@ -125,7 +125,7 @@ function(req, res, next) {
 	var oldPath = files.file_data.path;
 	var _start = oldPath.lastIndexOf('upload_');
 	if (_start < 0) start = 0;
-	var _end = oldPath.lastIndexOf('.fbx');
+	var _end = oldPath.lastIndexOf('.');
 	if (_end < 0) _end = oldPath.length;
 	var fileid = oldPath.substring(_start + 7, _end);
 	

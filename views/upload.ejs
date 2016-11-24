@@ -25,7 +25,7 @@
 		
             <form enctype="multipart/form-data" id="uploadForm">
                 <div class="form-group">
-                    <input id="file_1" type="file" class="file" data-overwrite-initial="false" data-min-file-count="1">
+                    <input id="file_1" multiple type="file" class="file" data-overwrite-initial="false" data-min-file-count="1">
                 </div>
             </form>
 			
@@ -34,13 +34,14 @@
         uploadUrl: '/upload', // you must set a valid URL here else you will get an error
 		showUploadedThumbs: false,
 		uploadAsync: true,
-        allowedFileExtensions : ['fbx'],
+        allowedFileExtensions : ['fbx','jpg','png','zip'],
         overwriteInitial: false,
         maxFileSize: 102400,
         maxFilesNum: 1,
-		allowedPreviewTypes: false,
-        //allowedFileTypes: ['image', 'video', 'flash'],
-        slugCallback: function(filename) {
+		allowedPreviewTypes: null,
+		allowedPreviewMimeTypes: ['image/jpeg', 'image/png', 'text/javascript'],
+		
+		slugCallback: function(filename) {
             return filename.replace('(', '_').replace(']', '_');
         }
 	});

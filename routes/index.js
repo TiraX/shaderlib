@@ -3,6 +3,7 @@ var formidable = require('formidable');
 var fs = require('fs');
 var User = require('../models/user');
 var task = require('../models/task');
+var request = require('request');
 
 var router = express.Router();
 
@@ -65,14 +66,10 @@ router.post('/login', function(req, res) {
   var crypto = require('crypto');
   var md5 = crypto.createHash('md5');
   var password = md5.update(req.body.pass).digest('base64');
-  var newUser = new User({
-    email: req.body.email,
-    name: null,
-    password: password
-  });
+  var userEMail = req.body.email;
   
   //check user email and password
-  User.get(newUser.email,
+  User.get(userEMail,
   function(err, userStr) {
     var info = {
       error: null,
@@ -95,7 +92,7 @@ router.post('/login', function(req, res) {
 	  return res.send(info);
 	}
 	info.info = 'login success.';
-	newUser.name = user.name;
+	var newUser = new User(user);
 	req.session.user = newUser;
 	res.send(info);
   });
@@ -136,26 +133,59 @@ function(req, res, next) {
 	// create dir and rename file to 'fileid' directory
 	var newDir = 'public/files/' + fileid;
 	fs.mkdirSync(newDir);
+	var filename = files.file_data.name.toLowerCase();
 	var newPath = newDir + '/' + filename;
 	fs.renameSync(oldPath, newPath);
 	
 	// save upload info to db
 	var user = new User(req.session.user);
-	if (user instanceof (User)) {
-	  console.log('instance of user.');
-	}
-	var asset = user.addUpload(fileid, files.file_data.name, function (err, result) {
+	var asset = user.addUpload(fileid, filename, function (err, result) {
       
 	});
 	
-	// send a convert model task to task server
-	task.send_cm_task(fileid, filename, function (err, result) {
+	// send info to task server
+	task.send_cm_request(fileid, filename, function(err, result) {
+      console.log('task_result : ' + result);
 	});
 	
-	// process done, send result to client
 	req.session.uploading = asset;
     var info = {};
     res.send(info);
   });
 });
+
+// receive converted model
+router.post('/rm', function(req, res) {
+  var fid = req.body.fileid;
+  var fname = req.body.filename;
+  console.log('rm fileid = ' + fid);
+  console.log('rm filename = ' + fname);
+  
+  // save remote tidae file to local
+  var file_path = 'public/files/';
+  var src_url = 'http://127.0.0.1:3003/tmpfiles/' + fid + '/' + fname;
+  console.log('src url is : ' + src_url);
+  var dst_path = file_path + fid + '/' + fname;
+  var dl_stream = request(src_url).pipe(fs.createWriteStream(dst_path));
+  console.log('file downloaded to : ' + dst_path);
+  
+  dl_stream.on('finish', function() {
+    console.log('download finished.');
+	// download finished. remove remote temp files
+
+	var info = {
+      fileid: fid,
+    };
+    request.post({url:'http://127.0.0.1:3003/remove_temp', form: info}, function(error, res, body) {
+      console.log('remove temp request returned. error = ' + error);
+      if (!error && res.statusCode == 200) {
+        console.log('body: ' + body);
+      }
+    });
+	
+    var test_json = {status: 'ok'};
+    res.send(test_json);
+  });
+});
+
 module.exports = router;

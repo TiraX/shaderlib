@@ -128,6 +128,7 @@ function(req, res, next) {
 	var _end = oldPath.lastIndexOf('.');
 	if (_end < 0) _end = oldPath.length;
 	var fileid = oldPath.substring(_start + 7, _end);
+	var filename = files.file_data.name;
 	
 	// create dir and rename file to 'fileid' directory
 	var newDir = 'public/files/' + fileid;

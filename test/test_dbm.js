@@ -1,4 +1,4 @@
-console.log('attention !!');
+console.log('start test dbm !!');
 var dbm = require('../db/dbm');
 //dbm.connect('123456');	// init in dbm.js
 dbm.set('table1', 'key1', 'value1');

@@ -2,6 +2,7 @@ var express = require('express');
 var formidable = require('formidable');
 var fs = require('fs');
 var User = require('../models/user');
+var task = require('../models/task');
 
 var router = express.Router();
 
@@ -130,11 +131,12 @@ function(req, res, next) {
 	var _end = oldPath.lastIndexOf('.fbx');
 	if (_end < 0) _end = oldPath.length;
 	var fileid = oldPath.substring(_start + 7, _end);
+	var filename = files.file_data.name;
 	
 	// create dir and rename file to 'fileid' directory
 	var newDir = 'public/files/' + fileid;
 	fs.mkdirSync(newDir);
-	var newPath = newDir + '/' + files.file_data.name;
+	var newPath = newDir + '/' + filename;
 	fs.renameSync(oldPath, newPath);
 	
 	// save upload info to db
@@ -145,6 +147,12 @@ function(req, res, next) {
 	var asset = user.addUpload(fileid, files.file_data.name, function (err, result) {
       
 	});
+	
+	// send a convert model task to task server
+	task.send_cm_task(fileid, filename, function (err, result) {
+	});
+	
+	// process done, send result to client
 	req.session.uploading = asset;
     var info = {};
     res.send(info);

@@ -128,12 +128,11 @@ function(req, res, next) {
 	var _end = oldPath.lastIndexOf('.');
 	if (_end < 0) _end = oldPath.length;
 	var fileid = oldPath.substring(_start + 7, _end);
-	var filename = files.file_data.name;
+	var filename = files.file_data.name.toLowerCase();
 	
 	// create dir and rename file to 'fileid' directory
 	var newDir = 'public/files/' + fileid;
 	fs.mkdirSync(newDir);
-	var filename = files.file_data.name.toLowerCase();
 	var newPath = newDir + '/' + filename;
 	fs.renameSync(oldPath, newPath);
 	
@@ -144,7 +143,7 @@ function(req, res, next) {
 	});
 	
 	// send info to task server
-	task.send_cm_request(fileid, filename, function(err, result) {
+	task.send_cm_task(fileid, filename, function(err, result) {
       console.log('task_result : ' + result);
 	});
 	
@@ -154,35 +153,14 @@ function(req, res, next) {
   });
 });
 
-// receive converted model
-router.post('/rm', function(req, res) {
+// receive processed file
+router.post('/receive_file', function(req, res) {
   var fid = req.body.fileid;
   var fname = req.body.filename;
   console.log('rm fileid = ' + fid);
   console.log('rm filename = ' + fname);
   
-  // save remote tidae file to local
-  var file_path = 'public/files/';
-  var src_url = 'http://127.0.0.1:3003/tmpfiles/' + fid + '/' + fname;
-  console.log('src url is : ' + src_url);
-  var dst_path = file_path + fid + '/' + fname;
-  var dl_stream = request(src_url).pipe(fs.createWriteStream(dst_path));
-  console.log('file downloaded to : ' + dst_path);
-  
-  dl_stream.on('finish', function() {
-    console.log('download finished.');
-	// download finished. remove remote temp files
-
-	var info = {
-      fileid: fid,
-    };
-    request.post({url:'http://127.0.0.1:3003/remove_temp', form: info}, function(error, res, body) {
-      console.log('remove temp request returned. error = ' + error);
-      if (!error && res.statusCode == 200) {
-        console.log('body: ' + body);
-      }
-    });
-	
+  task.receive_task_result(fid, fname, function() {
     var test_json = {status: 'ok'};
     res.send(test_json);
   });

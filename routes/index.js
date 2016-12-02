@@ -15,6 +15,11 @@ function(req, res, next) {
   });
 });
 
+// test tixjs page
+router.get('/test_tix', function(req, res, next) {
+  res.render('test_tix', {});
+});
+
 router.post('/reg',
 function(req, res) {
   var info = {

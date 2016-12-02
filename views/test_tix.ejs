@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=GBK">
+</head>
+<body>
+  <canvas id="test_webgl" width="800" height="600">
+	hello.
+  </canvas>
+  <div id="log_output">
+  Here is logs:<br>
+  </div>
+  <script type="text/javascript" src="js/gunzip.min.js"></script>
+  <script type="text/javascript" src="tixjs/tix.js"></script>
+  <script type="text/javascript" charset="utf-8" >
+	function main() {
+      var canvas = document.getElementById("test_webgl");
+      if (!canvas)
+      {
+        console.log("Failed to retrieve the canvas element");
+        return false;
+      }
+	  var tix = new TiEngine(canvas);
+	  tix.LoadMesh("res/coffee.tidae.gz");
+	  //tix.LoadMesh("../build/res/acyl.tidae");
+	  window.addEventListener( 'resize', onWindowResize, false );
+	}
+
+	function onWindowResize() {
+	  var renderer = renderer_instance;
+	  var canvas = renderer._canvas;
+	  var camera = engine_instance._render_stage._camera;
+	  renderer.SetViewport(0, 0, canvas.innerWidth, canvas.innerHeight);
+	  camera.SetAspect(canvas.innerWidth / canvas.innerHeight);
+
+	  engine_instance.NotifyRender();
+
+	}
+	main();
+  </script>
+</body></html>

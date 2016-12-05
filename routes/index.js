@@ -171,4 +171,11 @@ router.post('/receive_file', function(req, res) {
   });
 });
 
+// editor
+router.get('/edit', function(req, res) {
+  res.render('edit', {
+    title: 'Edit model'
+  });
+});
+
 module.exports = router;

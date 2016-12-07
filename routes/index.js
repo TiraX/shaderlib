@@ -36,14 +36,11 @@ function(req, res) {
   var crypto = require('crypto');
   var md5 = crypto.createHash('md5');
   var password = md5.update(req.body.pass).digest('base64');
-  var newUser = new User({
-    email: req.body.email,
-    name: req.body.uname,
-    password: password
-  });
+  var email = req.body.email;
+  var name = req.body.uname;
   
   //检查用户名是否已经存在
-  User.get(newUser.email,
+  User.get(email,
   function(err, user) {
     if (user) {
 	  err = 'Username already exists.';
@@ -55,13 +52,18 @@ function(req, res) {
 	  return res.send(info);
     }
     //如果不存在则新增用户
+    var newUser = new User({
+      email: email,
+      name: name,
+      password: password
+    });
     newUser.save(function(err) {
 	  if (err) {
 	    info.error = err;
 	  } else {
 	    info.info = 'register success';
 	  }
-      req.session.user = newUser;
+      req.session.user = newUser.jsonData();
 	  res.send(info);
     });
   });
@@ -97,8 +99,7 @@ router.post('/login', function(req, res) {
 	  return res.send(info);
 	}
 	info.info = 'login success.';
-	var newUser = new User(user);
-	req.session.user = newUser;
+	req.session.user = user;
 	res.send(info);
   });
 });
@@ -173,8 +174,26 @@ router.post('/receive_file', function(req, res) {
 
 // editor
 router.get('/edit', function(req, res) {
+  var fileid = req.query.id;
+  var user = req.session.user;
+
+  // check if user have this model.
+  if (user == null || !(fileid in user.upload_infos)) {
+    res.send('Can not find model.');
+    return;
+  }
+
+  // load and show model.
+
   res.render('edit', {
     title: 'Edit model'
+  });
+});
+
+// browse
+router.get('/browse', function(req, res) {
+  res.render('browse', {
+    title: 'Browse model'
   });
 });
 

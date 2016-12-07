@@ -5,7 +5,17 @@ function User(user) {
   this.email = user.email;
   this.name = user.name;
   this.password = user.password;
-  this.upload_infos = user.upload_infos ? user.upload_infos : [];
+  this.upload_infos = user.upload_infos ? user.upload_infos : {};
+};
+
+User.prototype.jsonData = function() {
+  var json = {
+    email: this.email,
+    name: this.name,
+    password: this.password,
+    upload_infos: this.upload_infos
+  };
+  return json;
 };
 
 User.prototype.save = function save(callback) {
@@ -41,7 +51,11 @@ User.prototype.addUpload = function addUpload(uploadid, filename, callback) {
   // add this upload info to user upload_infos and save it.
   var upload_info = {};
   upload_info.id = uploadid;
-  this.upload_infos.push(upload_info);
+  var name = filename.split('.');
+  name = name[name.length - 1];
+  upload_info.name = name;
+  upload_info.time = 
+  this.upload_infos[uploadid] = upload_info;
   this.save(callback);
   
   // add this new upload to upload table

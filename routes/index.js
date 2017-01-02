@@ -3,6 +3,8 @@ var formidable = require('formidable');
 var fs = require('fs');
 var User = require('../models/user');
 var task = require('../models/task');
+var Asset = require('../models/asset');
+var config = require('../config');
 var request = require('request');
 
 var router = express.Router();
@@ -144,17 +146,17 @@ function(req, res, next) {
 	
 	// save upload info to db
 	var user = new User(req.session.user);
-	var asset = user.addUpload(fileid, filename, function (err, result) {
-      
+	user.addUpload(fileid, filename, function (err, result) {
 	});
+    req.session.user = user.jsonData();
 	
 	// send info to task server
 	task.send_cm_task(fileid, filename, function(err, result) {
       console.log('task_result : ' + result);
 	});
 	
-	req.session.uploading = asset;
     var info = {};
+    info.id = fileid;
     res.send(info);
   });
 });
@@ -171,6 +173,56 @@ router.post('/receive_file', function(req, res) {
     res.send(test_json);
   });
 });
+
+// task finished from task server
+router.post('/task_finished', function(req, res) {
+  var fid = req.body.id;
+  var status = req.body.status;
+  var model = req.body.model;
+
+  // mark this task is finished in global.
+  var info = {};
+  info.status = status;
+  info.time = Date.now();
+  global.common.finished[fid] = info;
+
+  console.log('task finished. common = ' + JSON.stringify(global.common));
+
+  // todo: clear old record in global to avoid it take too much memory
+
+  // save model detail info to db
+  // 1st query summary info, 2nd update model info and resave it.
+  var asset = new Asset(fid);
+  asset.load(function (err, result) {
+    if (result == null) {
+      console.log('Error finding asset : ' + fid);
+      return;
+    }
+    var testasset = asset.jsonData();
+    console.log('test asset : ' + JSON.stringify(testasset));
+    asset.model = model;
+
+    asset.save(function(err, result) {
+      
+    });
+  });
+
+  res.send("");
+});
+
+// query process status
+router.get('/query_process_status', function(req, res) {
+  var fid = req.query.id;
+  var common = global.common;
+  
+  var info = {'status': -1};
+  if(common.finished[fid]) {
+    info.status = common.finished[fid].status;
+  }
+  console.log('query result is : ' + JSON.stringify(info));
+  res.send(info);
+});
+
 
 // editor
 router.get('/edit', function(req, res) {

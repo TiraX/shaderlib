@@ -48,20 +48,24 @@ User.get = function get(email, callback) {
 };
 
 User.prototype.addUpload = function addUpload(uploadid, filename, callback) {
-  // add this upload info to user upload_infos and save it.
+  // add upload summary info to user upload_infos and save it.
   var upload_info = {};
-  upload_info.id = uploadid;
   var name = filename.split('.');
-  name = name[name.length - 1];
+  if (name.length > 1) {
+    name = name[name.length - 2];
+  }
+  else {
+    name = name[name.length - 1];
+  }
   upload_info.name = name;
-  upload_info.time = 
+  upload_info.time = Date.now();
   this.upload_infos[uploadid] = upload_info;
   this.save(callback);
-  
-  // add this new upload to upload table
-  var newAsset = new Asset(uploadid);
-  newAsset.modelName = filename;
-  newAsset.save(callback);
-  return newAsset;
+
+  // add upload detail info to upload and save it
+  var asset = new Asset(uploadid);
+  asset.author = this.email;
+  asset.source = filename;
+  asset.save(callback); 
 }
 module.exports = User;

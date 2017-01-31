@@ -238,7 +238,9 @@ router.get('/edit', function(req, res) {
   // load and show model.
 
   res.render('edit', {
-    title: 'Edit model'
+    title: 'Edit model',
+    fid: fileid,
+    model: 'sphere.tidae.gz'
   });
 });
 

@@ -547,6 +547,27 @@ pbr_alpha = {
 //////////////////////////////////////////////////////////////////////////
 // Math , 3d math
 //////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+// temp aabbox help functions
+//////////////////////////////////////////////////////////////////////////
+
+AddInternalPoint = function (bbox, x,y,z) {
+  if (x > bbox[3]) bbox[3] = x;
+  if (y > bbox[4]) bbox[4] = y;
+  if (z > bbox[5]) bbox[5] = z;
+
+  if (x < bbox[0]) bbox[0] = x;
+  if (y < bbox[1]) bbox[1] = y;
+  if (z < bbox[2]) bbox[2] = z;
+};
+
+AddInternalBbox = function (bbox, innerBbox) {
+  AddInternalPoint(bbox, innerBbox[3], innerBbox[4], innerBbox[5]);
+  AddInternalPoint(bbox, innerBbox[0], innerBbox[1], innerBbox[2]);
+};
+
+
 function Vector2( x, y ) {
   this.x = x || 0;
   this.y = y || 0;
@@ -2025,6 +2046,41 @@ Matrix4.prototype = {
     result.m[15] = this.m[15];
     return result;
   },
+
+  transformBoxEx: function( bbox ) {
+    var Amin = [bbox[0], bbox[1], bbox[2]];
+    var Amax = [bbox[3], bbox[4], bbox[5]];
+
+    var Bmin = [0,0,0];
+    var Bmax = [0,0,0];
+
+    Bmin[0] = Bmax[0] = this.m[12];
+    Bmin[1] = Bmax[1] = this.m[13];
+    Bmin[2] = Bmax[2] = this.m[14];
+
+    for (var i = 0; i < 3; ++i) {
+      for (var j = 0; j < 3; ++j) {
+        var a = this.m[j * 4 + i] * Amin[j];
+        var b = this.m[j * 4 + i] * Amax[j];
+
+        if (a < b) {
+          Bmin[i] += a;
+          Bmax[i] += b;
+        } else {
+          Bmin[i] += b;
+          Bmax[i] += a;
+        }
+      }
+    }
+
+    bbox[0] = Bmin[0];
+    bbox[1] = Bmin[1];
+    bbox[2] = Bmin[2];
+
+    bbox[3] = Bmax[0];
+    bbox[4] = Bmax[1];
+    bbox[5] = Bmax[2];
+  }
 };
 
 buildProjectionMatrixPerspectiveFov = function( fov, aspect, zNear, zFar ) {
@@ -4248,6 +4304,17 @@ TiNode.prototype = {
   RegisterElement : function () {
     this.RegisterElementBase();
   },
+
+  GetNodesByType : function( type, list ) {
+    if (this.type == type) {
+      list.push(this);
+    }
+  
+    for (var c in this._children) {
+      var child = this._children[c];
+      child.GetNodesByType(type, list);
+    }
+  }
 };
 
 //////////////////////////////////////////////////////////////////////////
@@ -4353,13 +4420,27 @@ function TiNodeMesh( _p ){
   
   this._mesh_buffer = null;
   this._material = null;
+  this._ab_bbox = [0,0,0,0,0,0];
 };
 
 extend(TiNodeMesh, TiNode);
 
 TiNodeMesh.prototype.RegisterElement = function () {
   this.RegisterElementBase();
-  
+
+  // calc absolute bbox
+  if ((this.node_flag & ENF_ABSOLUTETRANSFORMATION_UPDATED) != 0) {
+    if (this._mesh_buffer != null) {
+      this._ab_bbox[0] = this._mesh_buffer._bbox[0];
+      this._ab_bbox[1] = this._mesh_buffer._bbox[1];
+      this._ab_bbox[2] = this._mesh_buffer._bbox[2];
+      this._ab_bbox[3] = this._mesh_buffer._bbox[3];
+      this._ab_bbox[4] = this._mesh_buffer._bbox[4];
+      this._ab_bbox[5] = this._mesh_buffer._bbox[5];
+      this._absolute_transformation.transformBoxEx(this._ab_bbox);
+    }
+  }
+
   // check should be in solid pass or transparent pass
   var render_state = this._material._shader._techniques[0]._shader_program._render_state;
   if (render_state.blend) {
@@ -5287,10 +5368,29 @@ TiEngine.prototype = {
     //node.SetRotation(q);
     
     // set camera
+    var target, pos;
+    node.RegisterElement(); // update ab bbox
+    var meshes = [];
+    node.GetNodesByType(ENT_MESH, meshes);
+    var bbox = [0,0,0,0,0,0];
+    for (var m in meshes) {
+      var mesh = meshes[m];
+      if (mesh._ab_bbox) {
+        AddInternalBbox(bbox, mesh._ab_bbox);
+      }
+    }
+    if (bbox != undefined) {
+      target = new Vector3((bbox[0] + bbox[3]) * 0.5, (bbox[1] + bbox[4]) * 0.5, (bbox[2] + bbox[5]) * 0.5);
+      var ext = new Vector3(bbox[3] - bbox[0], bbox[4] - bbox[1], bbox[5] - bbox[2]);
+      var radius = ext.getLength() * 0.5;
+      pos = new Vector3(1 * radius ,0 * radius, 1 * radius);
+    } else {
+      target = new Vector3(0, 0, 0);
+      pos = new Vector3(10, 10, 10);
+    }
     var camera = this._render_stage.GetActiveCamera();
-    camera.SetTarget(new Vector3(0.03436, 0.01112, 0.07077));
-    var _scale = 1;
-    camera.SetPosition(new Vector3(0.189 * _scale, -0.7488 * _scale, 0.33534 * _scale));
+    camera.SetTarget(target);
+    camera.SetPosition(pos);
     
     this.NotifyRender();
   },
